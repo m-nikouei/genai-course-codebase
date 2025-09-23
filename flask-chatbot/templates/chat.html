@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/static/coder_agent_icon_final2.png">
+  <title>Coder Agent Chatbot</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #18191A;
+      color: #e4e6eb;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      box-sizing: border-box;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+    body {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      box-sizing: border-box;
+      max-width: 100vw;
+      overflow-x: hidden;
+      padding: 0;
+    }
+    .container {
+      width: 100vw;
+      max-width: 2880px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      padding-left: 2vw;
+      padding-right: 2vw;
+      padding-top: 0;
+      padding-bottom: 2vh;
+      align-items: stretch;
+    }
+    .header-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      justify-content: flex-start;
+      margin: 18px 0 6px 0;
+      box-sizing: border-box;
+    }
+    .menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0 0.6em 0 0.1em;
+      margin-right: 0.3em;
+      outline: none;
+      display: flex;
+      align-items: center;
+      height: 1.73em;
+    }
+    .menu-icon {
+      width: 1.65em;
+      height: 1.65em;
+      display: block;
+      fill: #ceeafd;
+      transition: fill .17s;
+    }
+    .menu-btn:hover .menu-icon,
+    .menu-btn:focus .menu-icon {
+      fill: #87b8ec;
+    }
+    h2.title {
+      margin: 0;
+      font-weight: 600;
+      color: #ceeafd;
+      font-size: 1.73em;
+      line-height: 1.18;
+      padding-top: 0.02em;
+      padding-bottom: 0.02em;
+      letter-spacing: 0.01em;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    .side-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 300px;
+      background: #20232b;
+      color: #cfe3f7;
+      box-shadow: 2px 0 20px 0 #10141a8e;
+      z-index: 1001;
+      padding-top: 44px;
+      transform: translateX(-320px);
+      transition: transform 0.28s cubic-bezier(.84,.08,.22,1);
+      overflow-y: auto;
+    }
+    .side-panel.open {
+      transform: translateX(0);
+    }
+    .side-panel h3 {
+      font-weight: 600;
+      font-size: 1.13em;
+      color: #8bd1ff;
+      margin: 0.6em 1em 0.2em 1.18em;
+      letter-spacing: 0.01em;
+    }
+    .side-panel ul {
+      list-style: none;
+      padding: 0.2em 0.6em 1.7em 1.5em;
+      margin: 0;
+    }
+    .side-panel li {
+      margin: 0.45em 0;
+      padding: 0.54em 0.33em;
+      border-radius: 0.33em;
+      cursor: pointer;
+      font-size: 1.03em;
+      background: transparent;
+      transition: background .15s;
+    }
+    .side-panel li:hover {
+      background: #282e3d;
+      color: #ffe07a;
+    }
+    .side-panel .close-btn {
+      position: absolute;
+      top: 13px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #ceeafd;
+      font-size: 1.46em;
+      cursor: pointer;
+      z-index: 1003;
+      padding: 0.04em 0.17em 0.04em 0.18em;
+      line-height: 1;
+    }
+    .overlay {
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(24,25,34, 0.40);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.21s cubic-bezier(.67,.13,.24,.79);
+    }
+    .overlay.open {
+      pointer-events: all;
+      opacity: 1;
+    }
+    /* Overlay for About modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(20,23,32,0.82);
+      z-index: 1500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .about-modal {
+      background: #21222c;
+      border-radius: 16px;
+      max-width: 685px;
+      width: 91vw;
+      max-height: 86vh;
+      min-height: 230px;
+      padding: 44px 36px 32px 36px;
+      box-shadow: 0 30px 96px 0 #102a4a1b, 0 1px 8px #24395521;
+      position: relative;
+      overflow-y: auto;
+      color: #e0eefb;
+    }
+    .about-modal .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 18px;
+      font-size: 2em;
+      color: #cde8ff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1600;
+      padding: 0.01em 0.21em 0.01em 0.21em;
+      opacity: 0.90;
+      line-height: 1.1;
+    }
+    .about-modal .markdown-body {
+      font-size: 1.03em;
+    }
+    .chat-area-wrapper {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    #chat-box {
+      flex: 1 1 0;
+      overflow-y: auto;
+      padding: 24px 18px 16px 18px;
+      margin: 0;
+      background: transparent;
+      min-height: 0;
+      box-sizing: border-box;
+      max-width: 100vw;
+      overflow-x: hidden;
+      padding-left: 18px;
+      padding-right: 18px;
+      padding-bottom: 0;
+      padding-top: 0;
+      margin-bottom: 10px;
+      transition: height .12s;
+      border: 2px solid #3a7bd5;
+      border-radius: 22px;
+      box-shadow: 0 2px 32px 0 #4378de30;
+      background-clip: padding-box;
+      background-color: #18191A;
+    }
+    .chat-bubble {
+      display: inline-block;
+      min-width: 0;
+      max-width: 90%;
+      border-radius: 1.2em;
+      margin: 0.1em 0;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      position: relative;
+      font-size: 1.06em;
+      line-height: 1.4;
+      box-shadow: 0 1px 12px rgba(0,0,0,0.12);
+      background: #242526;
+      white-space: pre-line;
+      vertical-align: top;
+      padding-top: 0.36em;
+      padding-bottom: 0.32em;
+      padding-left: 1em;
+      padding-right: 1em;
+    }
+    .bubble-user {
+      float: right;
+      clear: both;
+      background: linear-gradient(100deg,#005e97,#363795 70%);
+      color: #fff;
+      text-align: right;
+      border-bottom-right-radius: 0.2em;
+      margin-left: 0;
+      margin-right: 5px;
+      padding-top: 0.20em;
+      padding-bottom: 0.15em;
+      padding-left: 0.85em;
+      padding-right: 1.1em;
+    }
+    .bubble-assistant {
+      float: left;
+      clear: both;
+      background: #242526;
+      color: #e4e6eb;
+      border-bottom-left-radius: 0.2em;
+      margin-right: 10%;
+      min-width: 50%;
+      margin-left: 5px;
+    }
+    .bubble-username {
+      font-size: 0.93em;
+      font-weight: 600;
+      margin-bottom: 0em;
+      opacity: 0.7;
+      margin-top: 0;
+      line-height: 1;
+    }
+    .markdown-body {
+      background: none;
+      color: inherit;
+      padding: 0 0 0.05em 0;
+      font-size: 1em;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      max-width: 100%;
+      box-sizing: border-box;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+    .markdown-body, .markdown-body * {
+      margin-top: 0 !important;
+      margin-bottom: 0.16em !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    .markdown-body pre {
+      position: relative;
+      padding-top: 2.0em !important;
+      overflow-x: auto;
+      background: #18191A;
+      box-sizing: border-box;
+      white-space: pre-wrap !important;
+      word-break: break-all;
+      margin-bottom: 1.1em !important;
+    }
+    .markdown-body pre code {
+      background: none !important;
+      box-sizing: border-box;
+      white-space: pre-wrap !important;
+      word-break: break-all !important;
+      overflow-x: auto !important;
+      display: block !important;
+      line-height: 1.45;
+      font-family: var(--code-font, SFMono-Regular,Consolas,'Liberation Mono',Menlo,monospace);
+    }
+    .markdown-body code:not(pre code) {
+      padding: 0.08em 0.28em !important;
+      border-radius: 0.23em;
+      font-size: 0.96em;
+      background: #232a2d;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.4em;
+      right: 0.7em;
+      background: #222;
+      color: #d2dde7;
+      border: none;
+      border-radius: 0.4em;
+      padding: 0.11em 0.77em 0.11em 0.7em;
+      font-size: 0.94em;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 0.86;
+      transition: background 0.12s;
+      font-family: inherit;
+      user-select: none;
+      display: none;
+    }
+    .markdown-body pre:hover .copy-btn, .markdown-body pre:focus-within .copy-btn {
+      display: block;
+    }
+    .copy-btn:hover {
+      background: #385981;
+      color: #fff;
+      opacity: 1;
+    }
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      padding: 5px 2vw 5px 2vw;
+      background: #18191A;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100vw;
+      overflow-x: hidden;
+      min-height: 62px;
+      height: auto;
+      flex: 0 0 auto;
+      margin-bottom: 2vh;
+      transition: min-height .12s, height .12s;
+    }
+    #message {
+      flex: 1;
+      background: #242526;
+      color: #e4e6eb;
+      border: 1px solid #333;
+      border-radius: 2em;
+      padding: 1em 1.3em 1em 1.3em;
+      font-size: 1.05em;
+      margin-right: 0.7em;
+      outline: none;
+      transition: border-color .18s;
+      box-sizing: border-box;
+      max-width: 90vw;
+      resize: none;
+      min-height: 2.3em;
+      max-height: 220px;
+      overflow-y: auto;
+      line-height: 1.36;
+    }
+    #message:focus {
+      border-color: #2e89ff;
+    }
+    .send-btn {
+      background: linear-gradient(100deg,#005e97,#363795 70%);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 0.55em 1.15em;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+      height: 2.2em;
+      min-width: 68px;
+    }
+    .send-btn:active {
+      background: linear-gradient(100deg,#004173,#272655 70%);
+    }
+    @media (max-width: 3000px) {
+      .container {
+        max-width: 99vw;
+      }
+    }
+    @media (max-width: 1000px) {
+      .container {
+        max-width: 100vw;
+      }
+      #chat-box {
+        padding-right: 13px;
+        padding-left: 13px;
+      }
+    }
+    @media (max-width: 600px) {
+      .container {
+        max-width: 100vw;
+        padding-left: 2vw;
+        padding-right: 2vw;
+        padding-top: 0;
+        padding-bottom: 2vh;
+      }
+      #chat-box {
+        padding: 16px 8px 8px 12px;
+        margin-bottom: 40px;
+      }
+      .chat-input-bar {
+        padding-left: 2vw;
+        padding-right: 2vw;
+      }
+      #message {
+        max-width: 84vw;
+      }
+      .bubble-assistant {
+        min-width: 60%;
+        margin-left: 6px;
+      }
+    }
+    .markdown-body table {
+      display: table;
+      width: auto;
+      margin: 1em 0;
+      border-collapse: collapse;
+      background: #202126;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.09);
+      font-size: 1em;
+    }
+    .markdown-body th,
+    .markdown-body td {
+      padding: 0.38em 1em;
+      border: 1px solid #363795;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .markdown-body th {
+      background: #232a36;
+      font-weight: bold;
+      color: #ceeafd;
+    }
+    .markdown-body table .copy-btn {
+      position: absolute;
+      top: 0.4em;
+      right: 0.7em;
+      background: #222;
+      color: #d2dde7;
+      border: none;
+      border-radius: 0.4em;
+      padding: 0.11em 0.77em 0.11em 0.7em;
+      font-size: 0.94em;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 0.86;
+      transition: background 0.12s;
+      font-family: inherit;
+      user-select: none;
+      display: none;
+    }
+    .markdown-body table:hover .copy-btn,
+    .markdown-body table:focus-within .copy-btn {
+      display: block;
+    }
+    /* About menu item highlight */
+    .side-panel li.about-menu {
+      color: #f4b363;
+      font-weight: 600;
+    }
+    .side-panel li.about-menu:hover {
+      background: #393c4a;
+      color: #fff7d6;
+    }
+    .side-panel .model-select {
+      background: #2c313a;
+      color: #3eaaff;
+      border: 1px solid #415a6b;
+      padding: 0.39em 0.5em;
+      margin: 0.22em 0 0.7em 0;
+      border-radius: 0.38em;
+      font-size: 0.98em;
+      font-family: inherit;
+      outline: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+  <div class="side-panel" id="sidePanel">
+    <button class="close-btn" onclick="togglePanel(false)">&times;</button>
+    <h3>Menu</h3>
+    <ul id="menuList">
+      <!-- Loaded via JS -->
+    </ul>
+  </div>
+  <div class="overlay" id="overlay" onclick="togglePanel(false)"></div>
+  <div class="modal-overlay" id="aboutOverlay">
+    <div class="about-modal">
+      <button class="close-btn" onclick="closeAboutModal()" aria-label="Close About">&times;</button>
+      <div id="aboutContent" class="markdown-body"></div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="header-bar">
+      <button class="menu-btn" onclick="togglePanel(true)" title="Menu" aria-label="Open menu">
+        <svg class="menu-icon" viewBox="0 0 20 20">
+          <rect y="3" width="20" height="2" rx="1"/>
+          <rect y="9" width="20" height="2" rx="1"/>
+          <rect y="15" width="20" height="2" rx="1"/>
+        </svg>
+      </button>
+      <h2 class="title">Coder Agent Chatbot</h2>
+    </div>
+    <div class="chat-area-wrapper">
+      <div id="chat-box">
+        {% for msg in history %}
+          <div class="chat-bubble bubble-user">
+            <div class="bubble-username">You</div>
+            <div class="markdown-body" data-md="{{ msg[0] | e }}"></div>
+          </div>
+          <div class="chat-bubble bubble-assistant">
+            <div class="bubble-username">Coder</div>
+            <div class="markdown-body" data-md="{{ msg[1] | e }}"></div>
+          </div>
+        {% endfor %}
+      </div>
+      <form id="chat-form" class="chat-input-bar" autocomplete="off">
+        <textarea id="message" name="message" placeholder="Type your message..." required autocomplete="off" rows="1"></textarea>
+        <button class="send-btn" type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+<script>
+marked.setOptions({
+  highlight: function(code, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang }).value;
+    }
+    return hljs.highlightAuto(code).value;
+  }
+});
+
+function enhanceCodeBlocks(parent) {
+  parent.querySelectorAll('pre code').forEach(function(block) {
+    const pre = block.parentElement;
+    Array.from(pre.querySelectorAll('.copy-btn')).forEach(btn => btn.remove());
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      navigator.clipboard.writeText(block.innerText);
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1400);
+    };
+    pre.insertBefore(btn, pre.firstChild);
+    hljs.highlightElement(block);
+  });
+
+  parent.querySelectorAll('table').forEach(function(table) {
+    Array.from(table.querySelectorAll('.copy-btn')).forEach(btn => btn.remove());
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      navigator.clipboard.writeText(tableToMarkdown(table));
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1400);
+    };
+    table.style.position = 'relative';
+    table.insertBefore(btn, table.firstChild);
+  });
+}
+
+const DEFAULT_MENU = {
+  "Settings": [],
+};
+
+let settingsCache = null;
+
+async function fetchSettings(force=false) {
+  if (settingsCache && !force) return settingsCache;
+  const res = await fetch('/settings.json');
+  const json = await res.json();
+  settingsCache = json;
+  return json;
+}
+
+function getPersistedModel(defaultModel) {
+  try {
+    return localStorage.getItem("selectedModel") || defaultModel;
+  } catch (e) { return defaultModel; }
+}
+
+function setPersistedModel(model) {
+  try {
+    localStorage.setItem("selectedModel", model);
+  } catch (e) {}
+}
+
+async function fillSidePanel() {
+  const menuList = document.getElementById("menuList");
+  menuList.innerHTML = '';
+  const settings = await fetchSettings();
+  let usedMenu = JSON.parse(JSON.stringify(DEFAULT_MENU));
+  usedMenu.Settings =[];
+  usedMenu.About = [];
+
+  // Settings Section
+  Object.keys(usedMenu).forEach(section => {
+    if (section === "Settings") {
+      const header = document.createElement("li");
+      header.textContent = section;
+      header.style.fontWeight = "bold";
+      header.style.marginTop = "1.5em";
+      header.style.color = "#91d7ff";
+      header.style.cursor = "default";
+      menuList.appendChild(header);
+
+      // Model Selector
+      const sel = document.createElement('select');
+      sel.className = "model-select";
+      sel.title = "Switch Model";
+      let models = settings.language_models || [];
+      const current = getPersistedModel(settings.model || (models[0] ? models[0].name : ''));
+      models.forEach(x => {
+        const opt = document.createElement("option");
+        opt.value = x.name;
+        opt.innerText = x.name;
+        if (x.name === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.onchange = function() {
+        setPersistedModel(sel.value);
+        // Optionally show a reload indicator
+        location.reload();
+      };
+      const selLi = document.createElement("li");
+      selLi.style.display = "block";
+      selLi.style.cursor = "default";
+      selLi.style.padding = "0 0 0.25em 0";
+      selLi.style.background = "none";
+      selLi.appendChild(document.createTextNode("Language Model: "));
+      selLi.appendChild(sel);
+      menuList.appendChild(selLi);
+
+      usedMenu.Settings.forEach(option => {
+        const li = document.createElement("li");
+        li.textContent = option;
+        menuList.appendChild(li);
+      });
+    } else if (section === "About") {
+      const aboutLi = document.createElement("li");
+      aboutLi.textContent = "About";
+      aboutLi.className = "about-menu";
+      aboutLi.onclick = function(e) {
+        e.preventDefault();
+        openAboutModal();
+        togglePanel(false);
+      };
+      menuList.appendChild(aboutLi);
+    } else {
+      const header = document.createElement("li");
+      header.textContent = section;
+      header.style.fontWeight = "bold";
+      header.style.marginTop = "1.5em";
+      header.style.color = "#91d7ff";
+      header.style.cursor = "default";
+      menuList.appendChild(header);
+      usedMenu[section].forEach(option => {
+        const li = document.createElement("li");
+        li.textContent = option;
+        menuList.appendChild(li);
+      });
+    }
+  });
+}
+
+function togglePanel(open) {
+  const panel = document.getElementById('sidePanel');
+  const overlay = document.getElementById('overlay');
+  if (open) {
+    panel.classList.add('open');
+    overlay.classList.add('open');
+    fillSidePanel();
+  } else {
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+  }
+}
+window.addEventListener('keydown', function(e) {
+  if (e.key === "Escape") {
+    togglePanel(false);
+    closeAboutModal();
+  }
+});
+
+const form = document.getElementById('chat-form');
+const box = document.getElementById('chat-box');
+const textarea = document.getElementById('message');
+
+function scrollToBottom() {
+    box.scrollTop = box.scrollHeight;
+}
+
+window.addEventListener("load", function() {
+    document.querySelectorAll('.markdown-body').forEach(function(mdEl) {
+        const mdSrc = mdEl.getAttribute('data-md');
+        if(mdSrc !== null) {
+            mdEl.innerHTML = marked.parse(mdSrc, { breaks: true });
+        }
+        enhanceCodeBlocks(mdEl);
+    });
+    scrollToBottom();
+});
+
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.overflowY = 'hidden';
+    el.style.height = (el.scrollHeight) + 'px';
+    adjustChatBoxHeight();
+}
+function adjustChatBoxHeight() {
+    const chatAreaWrapper = document.querySelector('.chat-area-wrapper');
+    const chatForm = document.querySelector('.chat-input-bar');
+    const chatBox = document.getElementById('chat-box');
+    const chatFormHeight = chatForm.offsetHeight;
+    const wrapperHeight = chatAreaWrapper.offsetHeight;
+    chatBox.style.maxHeight = (wrapperHeight - chatFormHeight) + "px";
+    chatBox.style.flexBasis = (wrapperHeight - chatFormHeight) + "px";
+    chatBox.style.height = (wrapperHeight - chatFormHeight) + "px";
+}
+
+textarea.addEventListener('input', function() {
+    autoResizeTextarea(this);
+});
+
+window.addEventListener('resize', adjustChatBoxHeight);
+window.addEventListener('DOMContentLoaded', function() {
+    autoResizeTextarea(textarea);
+    setTimeout(adjustChatBoxHeight, 20);
+});
+
+textarea.addEventListener('keydown', function(e) {
+    if (e.key === "Enter") {
+        if (e.shiftKey) {
+            return;
+        } else {
+            e.preventDefault();
+            form.requestSubmit();
+        }
+    }
+});
+
+function renderMarkdown(element, text) {
+    element.innerHTML = marked.parse(text || "", { breaks: true });
+    enhanceCodeBlocks(element);
+}
+
+function getSelectedModelForRequest() {
+  if (settingsCache && settingsCache.language_models) {
+    return getPersistedModel(settingsCache.model || (settingsCache.language_models[0] ? settingsCache.language_models[0].name : ''));
+  }
+  return null;
+}
+
+form.onsubmit = function(e) {
+  e.preventDefault();
+  const message = textarea.value.trim();
+  if (!message) return;
+
+  const userDiv = document.createElement('div');
+  userDiv.className = "chat-bubble bubble-user";
+  userDiv.innerHTML = `<div class="bubble-username">You</div><div class="markdown-body"></div>`;
+  box.appendChild(userDiv);
+  renderMarkdown(userDiv.querySelector(".markdown-body"), message);
+  scrollToBottom();
+  textarea.value = '';
+  autoResizeTextarea(textarea);
+
+  const aiDiv = document.createElement('div');
+  aiDiv.className = "chat-bubble bubble-assistant";
+  aiDiv.innerHTML = `<div class="bubble-username">Coder</div><div class="markdown-body"></div>`;
+  box.appendChild(aiDiv);
+  const mdBody = aiDiv.querySelector(".markdown-body");
+  scrollToBottom();
+
+  fetchSettings().then(() => {
+    // Always send model name
+    const selectedModel = getSelectedModelForRequest();
+    fetch('/chat_stream', {
+      method: "POST",
+      headers: {'Content-Type': "application/json"},
+      body: JSON.stringify({"message": message, "model": selectedModel})
+    }).then(response => {
+      const reader = response.body.getReader();
+      let text = "";
+      function readStream() {
+        reader.read().then(({done, value}) => {
+          if (done) {
+            if (!text.trim()) aiDiv.remove();
+            adjustChatBoxHeight();
+            return;
+          }
+          const chunk = new TextDecoder().decode(value);
+          text += chunk;
+          renderMarkdown(mdBody, text);
+          scrollToBottom();
+          readStream();
+          adjustChatBoxHeight();
+        });
+      }
+      readStream();
+    }).catch(() => {
+      renderMarkdown(mdBody, text);
+      adjustChatBoxHeight();
+    });
+  });
+};
+
+function tableToMarkdown(table) {
+  const escape = txt => (txt || "").replace(/\|/g, "\\|").replace(/\n/g, " ");
+  const rows = Array.from(table.rows).map(row => 
+    Array.from(row.cells).map(cell => escape(cell.innerText.trim()))
+  );
+  if (rows.length === 0) return "";
+  const header = rows[0];
+  const aligns = Array(rows[0].length).fill("---");
+  let md = `| ${header.join(" | ")} |\n| ${aligns.join(" | ")} |\n`;
+  for (let i = 1; i < rows.length; ++i)
+    md += `| ${rows[i].join(" | ")} |\n`;
+  return md.trim();
+}
+
+// ===== About Overlay Modal Logic =====
+let aboutContentLoaded = false;
+function openAboutModal() {
+  const modal = document.getElementById('aboutOverlay');
+  if (!aboutContentLoaded) {
+    fetch('/about.md')
+      .then(resp => resp.text())
+      .then(md => {
+        document.getElementById('aboutContent').innerHTML = marked.parse(md);
+        enhanceCodeBlocks(document.getElementById('aboutContent'));
+        aboutContentLoaded = true;
+      });
+  }
+  modal.classList.add('open');
+}
+function closeAboutModal() {
+  const modal = document.getElementById('aboutOverlay');
+  modal.classList.remove('open');
+}
+
+</script>
+</body>
+</html>
