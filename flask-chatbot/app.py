@@ -59,7 +59,7 @@ def chat_stream():
         data = request.get_json()
         message = data.get("message", "")
         model_name = data.get("model")  # <-- get model sent by frontend
-        print(f"model: {model_name}")
+        # print(f"model: {model_name}")
         return Response(chatbot_backend.predict(message, model_name=model_name), mimetype="text/event-stream")
     else:
         return Response(None, mimetype='text/event-stream')
