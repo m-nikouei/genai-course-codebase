@@ -7,3 +7,4 @@ langgraph
 flask
 flask-session
 markdown
+langchain-ollama

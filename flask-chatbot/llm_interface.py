@@ -2,6 +2,7 @@ import os
 import json
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama.llms import OllamaLLM
 from langchain.schema import HumanMessage, AIMessage, SystemMessage
 from config import read_configs
 import json
@@ -47,13 +48,16 @@ class ChatBackend():
         provider = self.model_dict[model_name]
         if provider == "google":
             model = ChatGoogleGenerativeAI(model=model_name, streaming=True)
+        elif provider == "ollama":
+            model = OllamaLLM(model=model_name, streaming=True)
         else:
             model = ChatOpenAI(model=model_name, streaming=True)
         self.history_langchain_format.append(HumanMessage(content=message))
+        
         response = ""
         for chunk in model.stream(self.history_langchain_format):
             prev_len = len(response)
-            response += chunk.content
+            response += chunk.content if hasattr(chunk, "content") else str(chunk)
             delta = response[prev_len:]
             if delta:
                 yield delta

@@ -17,8 +17,12 @@
             "provider": "openai"
         },
         {
-            "name": "Gemini 2.5 Flash",
+            "name": "gemini-2.5-flash",
             "provider": "google"
+        },
+        {
+            "name": "gemma3:4b",
+            "provider": "ollama"
         }
     ]
 }
