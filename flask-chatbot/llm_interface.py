@@ -22,7 +22,8 @@ class ChatBackend():
         # self.model = ChatOpenAI(model="gpt-4.1-2025-04-14", streaming=True)
         self.state_path = configs["chatbot"].get("CONV_LOG_PATH", "conversation_state_dev.json")
         self.history = self.load_conversation_state(self.state_path)
-        system_prompt = SystemMessage(content="You are Coder Agent, an expert AI assistant who writes clean and easy to understand code. At each step you need write the best code possible. different options are not necessary. Don't add comments to code. The code should be production ready. Demos, incomplete code or code that requires further work is not acceptable. When a piece of code is provided, you should not change it unless the user asks you to do so. If the user asks you to change a piece of code, you should only change necessary part of the code and not the rest of the code.")
+        # system_prompt = SystemMessage(content="You are Coder Agent, an expert AI assistant who writes clean and easy to understand code. At each step you need write the best code possible. different options are not necessary. Don't add comments to code. The code should be production ready. Demos, incomplete code or code that requires further work is not acceptable. When a piece of code is provided, you should not change it unless the user asks you to do so. If the user asks you to change a piece of code, you should only change necessary part of the code and not the rest of the code.")
+        system_prompt = SystemMessage(content="Your are a helpful AI assistant. Be short and concise in your answers.")
         self.history_langchain_format = [system_prompt]
         for msg in self.history:
             if msg["role"] == "user":
@@ -41,7 +42,6 @@ class ChatBackend():
             json.dump(history, f, indent=2)
 
     def predict(self, message, model_name=None):
-        from langchain_openai import ChatOpenAI
         if model_name is None:
             model_name = getattr(self, "default_model", "gpt-4.1")
         print("Using model:", model_name)
