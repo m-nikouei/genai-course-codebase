@@ -1,0 +1,28 @@
+{
+    "language_models": [
+        {
+            "name": "gpt-4.1",
+            "provider": "openai"
+        },
+        {
+            "name": "gpt-5",
+            "provider": "openai"
+        },
+        {
+            "name": "gpt-5-mini",
+            "provider": "openai"
+        },
+        {
+            "name": "o4-mini-deep-research",
+            "provider": "openai"
+        },
+        {
+            "name": "gemini-2.5-flash",
+            "provider": "google"
+        },
+        {
+            "name": "gemma3:4b",
+            "provider": "ollama"
+        }
+    ]
+}
