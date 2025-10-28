@@ -18,3 +18,11 @@
 # Run flask-chatbot
 execute 
 ```python flask-chatbot/app.py```
+
+# RAG Tool
+* **Qdrant Server:**
+1. Create your local storage for qdrant, e.g "/home/username/qdrant_data"
+2. Run the server ```podman run -p 6333:6333 -v /home/username/qdrant_data:/qdrant/storage docker.io/qdrant/qdrant```.
+* **Indexing:**
+1. Go to ```bot/rag_indexing```
+2. run ```python indexing.py [url]```. For our example, url by ```https://lilianweng.github.io/posts/2023-06-23-agent/```

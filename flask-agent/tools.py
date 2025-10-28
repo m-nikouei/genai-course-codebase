@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 from openai import OpenAI
 import requests
 import os
-# from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings
 from langchain_ollama.llms import OllamaLLM
 
@@ -159,42 +159,51 @@ class GemmaAssistant(BaseTool):
 #     async def _arun(self, prompt: str):
 #         return self._run(prompt)
     
-# class RAGTool(BaseTool):
-#     name: str = "RAG_Assistant"
-#     description: str = "Use this tool, when the user wants to know anything related to LLM Powered Autonomous Agents.\n" +\
-#     "The questions could be about agent planing, memory and tools." + \
-#     "Examples and case studies of such agents and challenges are covered.\n" + \
-#     "This tool accepts one input question:\n" + \
-#     "[question]\n" + \
-#     "Don't change the input question from the user and don't change answer from this tool\n."  +\
-#     "Just pass it through to the user."
-#     retriever: Type[VectorStoreRetriever] = None
-#     llm: Type[ChatOpenAI] = None
-#     prompt: Type[ChatPromptTemplate] = None
 
-#     def __init__(self,llm,prompt):
-#         super().__init__()
-#         client = QdrantVectorStore.from_existing_collection(path="../../qdrant",collection_name="my_documents",embedding=OpenAIEmbeddings())
-#         self.retriever = client.as_retriever()
-#         self.llm = llm
-#         self.prompt = prompt
-    
-#     args_schema: Type[BaseModel] = AssistantInput
+class RAGTool(BaseTool):
+    name: str = "RAG_Assistant"
+    description: str = (
+        "Use this tool when the user wants to know anything related to LLM Powered Autonomous Agents.\n"
+        "The questions could be about agent planning, memory, and tools.\n"
+        "Examples and case studies of such agents and challenges are covered.\n"
+        "This tool accepts one input question:\n"
+        "[question]\n"
+        "Don't change the input question from the user and don't change the answer from this tool.\n"
+        "Just pass it through to the user."
+    )
 
+    retriever: Type[VectorStoreRetriever] = None
+    llm: Type = None
+    prompt: Type[ChatPromptTemplate] = None
 
-#     @staticmethod
-#     def format_docs(docs):
-#         return "\n\n".join(doc.page_content for doc in docs)
+    def __init__(self, llm, prompt):
+        super().__init__()
+        try:
+            client = QdrantVectorStore.from_existing_collection(
+                collection_name="my_documents",
+                embedding=OpenAIEmbeddings(),
+                url="http://localhost:6333"  # Qdrant server endpoint
+            )
+            self.retriever = client.as_retriever()
+            self.llm = llm
+            self.prompt = prompt
+        except Exception as e:
+            print("Error in loading RAG vector store:", e)
 
-#     def _run(self, question: str):
-        
-#         rag_chain = (
-#             {"context": self.retriever | self.format_docs, "question": RunnablePassthrough()}
-#             | self.prompt
-#             | self.llm
-#             | StrOutputParser()
-#         )
-#         return rag_chain.invoke(question)
-        
-#     async def _arun(self, question: str):
-#         return self._run(question)
+    args_schema: Type[BaseModel] = AssistantInput
+
+    @staticmethod
+    def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+
+    def _run(self, question: str):
+        rag_chain = (
+            {"context": self.retriever | self.format_docs, "question": RunnablePassthrough()}
+            | self.prompt
+            | self.llm
+            | StrOutputParser()
+        )
+        return rag_chain.invoke(question)
+
+    async def _arun(self, question: str):
+        return self._run(question)

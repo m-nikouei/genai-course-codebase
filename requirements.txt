@@ -8,3 +8,9 @@ flask
 flask-session
 markdown
 langchain-ollama
+langchain_text_splitters
+qdrant-client
+langchainhub
+langchain-qdrant
+langchain_community
+beautifulsoup4
